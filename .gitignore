@@ -1,4 +1,6 @@
 hello_linux
 app
+file_io
+sensor_log.txt
 *.o
 a.out
