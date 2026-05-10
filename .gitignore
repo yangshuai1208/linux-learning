@@ -2,6 +2,7 @@ hello_linux
 app
 file_io
 pthread_demo
+mutex_demo
 sensor_log.txt
 *.o
 a.out
