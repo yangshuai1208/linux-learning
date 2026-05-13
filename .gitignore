@@ -4,6 +4,7 @@ file_io
 pthread_demo
 mutex_demo
 serial_demo
+tcp_client
 sensor_log.txt
 *.o
 a.out
