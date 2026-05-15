@@ -6,6 +6,8 @@ mutex_demo
 serial_demo
 tcp_client
 tcp_server
+tcp_echo_server
+tcp_echo_client
 sensor_log.txt
 *.o
 a.out
