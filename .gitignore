@@ -8,6 +8,7 @@ tcp_client
 tcp_server
 tcp_echo_server
 tcp_echo_client
+tcp_loop_server
 sensor_log.txt
 *.o
 a.out
