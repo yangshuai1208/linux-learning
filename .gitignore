@@ -11,6 +11,7 @@ tcp_echo_client
 tcp_loop_server
 tcp_thread_server
 tcp_protocol_server
+mqtt_publish
 sensor_log.txt
 *.o
 a.out
