@@ -12,6 +12,7 @@ tcp_loop_server
 tcp_thread_server
 tcp_protocol_server
 mqtt_publish
+mqtt_subscribe
 sensor_log.txt
 *.o
 a.out
