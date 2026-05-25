@@ -13,6 +13,7 @@ tcp_thread_server
 tcp_protocol_server
 mqtt_publish
 mqtt_subscribe
+serial_reader
 sensor_log.txt
 *.o
 a.out
