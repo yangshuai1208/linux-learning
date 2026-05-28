@@ -16,6 +16,7 @@ mqtt_subscribe
 serial_reader
 sensor_parse
 gateway_v1
+gateway_loop
 sensor_log.txt
 *.o
 a.out
