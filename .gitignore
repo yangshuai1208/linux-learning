@@ -18,6 +18,7 @@ sensor_parse
 gateway_v1
 gateway_loop
 gateway_mqtt
+gateway_module
 sensor_log.txt
 *.o
 a.out
