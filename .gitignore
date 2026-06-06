@@ -19,6 +19,7 @@ gateway_v1
 gateway_loop
 gateway_mqtt
 gateway_module
+gateway_datasource
 sensor_log.txt
 *.o
 a.out
