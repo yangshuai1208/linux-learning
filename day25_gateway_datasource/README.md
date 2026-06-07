@@ -1,29 +1,26 @@
-# Day24 gateway_module：网关模块化拆分与 Makefile 构建
+# Day25 gateway_datasource：新增 data_source 数据源模块
 
 ## 一、今日目标
 
-今天将 Day23 的单文件 `gateway_mqtt.c` 拆分成多个模块，使项目结构更接近真实 Linux C 工程。
+今天在 Day24 模块化网关基础上，新增 `data_source` 数据源模块。
 
-Day23：
+Day24 的主流程中，模拟数据直接写在 `main.c` 里：
 
 ```text
-gateway_mqtt.c 一个大文件
+main.c 直接使用 raw_data_list
 ```
 
-Day24：
+Day25 改为：
 
 ```text
-main.c
-sensor_parser.c / sensor_parser.h
-log_writer.c / log_writer.h
-mqtt_client.c / mqtt_client.h
-Makefile
+main.c 不直接关心数据来自哪里
+通过 data_source_read() 获取数据
 ```
 
 目标流程：
 
 ```text
-模拟 STM32 数据
+data_source 获取数据
 ↓
 sensor_parser 解析
 ↓
@@ -39,8 +36,11 @@ mosquitto_sub 接收
 ## 二、项目结构
 
 ```text
-day24_gateway_module/
+day25_gateway_datasource/
 ├── main.c
+├── config.h
+├── data_source.c
+├── data_source.h
 ├── sensor_parser.c
 ├── sensor_parser.h
 ├── log_writer.c
@@ -51,87 +51,75 @@ day24_gateway_module/
 ├── README.md
 ├── sensor_log.txt
 └── notes/
-    └── day24_note.md
+    └── day25_note.md
 ```
 
-## 三、模块说明
+## 三、新增模块说明
 
-### 1. main.c
+### 1. config.h
 
-负责主流程控制：
+用于配置当前数据源模式。
 
-```text
-初始化 MQTT
-循环处理模拟数据
-调用解析模块
-调用日志模块
-调用 MQTT 发布模块
-释放资源
+```c
+#define USE_MOCK_DATA 1
+#define LOOP_COUNT 5
+#define SERIAL_DEV "/dev/ttyUSB0"
 ```
 
-### 2. sensor_parser.c / sensor_parser.h
-
-负责传感器数据解析和 JSON 生成：
+说明：
 
 ```text
-parse_sensor_data()
-build_json()
-SensorData 结构体
+USE_MOCK_DATA 1：使用模拟数据
+USE_MOCK_DATA 0：后续切换真实串口数据
+LOOP_COUNT：循环读取次数
+SERIAL_DEV：串口设备路径
 ```
 
-### 3. log_writer.c / log_writer.h
+### 2. data_source.c / data_source.h
 
-负责日志写入：
+负责统一提供数据。
+
+核心函数：
 
 ```text
-write_log()
-sensor_log.txt
+data_source_init()
+data_source_read()
+data_source_cleanup()
 ```
 
-### 4. mqtt_client.c / mqtt_client.h
-
-负责 MQTT 连接、发布和清理：
+当前使用 mock 模式：
 
 ```text
-mqtt_client_init()
-mqtt_publish_json()
-mqtt_client_cleanup()
+模拟 STM32 周期上报数据
 ```
 
-### 5. Makefile
-
-负责多文件编译：
+后续可切换为 serial 模式：
 
 ```text
-make
-make clean
+从 /dev/ttyUSB0 读取真实 STM32 串口数据
 ```
 
 ## 四、编译命令
 
 ```bash
+make clean
 make
 ```
 
 编译成功后生成：
 
 ```text
-gateway_module
+gateway_datasource
 main.o
+data_source.o
 sensor_parser.o
 log_writer.o
 mqtt_client.o
 ```
 
-清理命令：
-
-```bash
-make clean
-```
-
 ## 五、运行方式
 
-先启动 Mosquitto：
+启动 Mosquitto：
 
 ```bash
 sudo service mosquitto start
@@ -143,10 +131,10 @@ sudo service mosquitto start
 mosquitto_sub -h localhost -t gateway/stm32_01/sensor
 ```
 
-终端 2 运行网关程序：
+终端 2 运行程序：
 
 ```bash
-./gateway_module
+./gateway_datasource
 ```
 
 查看日志：
@@ -157,10 +145,11 @@ cat sensor_log.txt
 
 ## 六、实验现象
 
-网关程序输出：
+程序输出示例：
 
 ```text
-gateway module start
+gateway datasource start
+data source: mock mode
 mqtt connect success
 publish topic: gateway/stm32_01/sensor
 
@@ -170,7 +159,7 @@ json: {"temp":25,"humi":60,"device_id":"stm32_01"}
 write log success
 mqtt publish success
 
-gateway module end
+gateway datasource end
 ```
 
 订阅端收到：
@@ -186,27 +175,57 @@ gateway module end
 说明：
 
 ```text
-模块化网关程序编译成功
-MQTT 连接成功
+data_source mock 数据读取成功
 传感器字符串解析成功
 JSON 生成成功
 日志写入成功
 MQTT 发布成功
+mosquitto_sub 接收成功
 ```
 
-## 七、今日总结
-
-Day24 完成了 Linux 网关项目的模块化拆分。
-
-当前项目已经具备：
+## 七、核心流程
 
 ```text
-多文件工程结构
-头文件声明
-源文件实现
-Makefile 自动编译
-日志保存
-MQTT 上传
+data_source_read()
+↓
+raw_buf
+↓
+parse_sensor_data()
+↓
+SensorData
+↓
+build_json()
+↓
+json_buf
+↓
+write_log()
+↓
+mqtt_publish_json()
 ```
 
-这一步让项目从“单文件 demo”升级为“工程化项目雏形”。
+## 八、今日总结
+
+Day25 完成了数据源模块封装。
+
+相比 Day24，Day25 的提升是：
+
+```text
+main.c 和数据来源解耦
+支持 mock 数据模式
+预留真实串口模式
+项目结构更接近真实物联网网关
+```
+
+后续只需要把：
+
+```c
+#define USE_MOCK_DATA 1
+```
+
+改成：
+
+```c
+#define USE_MOCK_DATA 0
+```
+
+再解决 `/dev/ttyUSB0` 串口挂载，就可以切换到真实 STM32 数据源。
