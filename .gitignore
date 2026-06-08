@@ -21,6 +21,7 @@ gateway_mqtt
 gateway_module
 gateway_datasource
 gateway_applog
+gateway_stats
 sensor_log.txt
 *.o
 a.out

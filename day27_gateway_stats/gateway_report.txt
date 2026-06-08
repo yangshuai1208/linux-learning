@@ -1,0 +1,9 @@
+Gateway Run Report
+Time:2026-06-08 09:12:31
+--------------------------
+total count     :5
+parse success count :4
+parse fail count:1
+mqtt success count:4
+mqtt fail count:0
+-------------------------
