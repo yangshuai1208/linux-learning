@@ -23,5 +23,7 @@ gateway_datasource
 gateway_applog
 gateway_stats
 sensor_log.txt
+app_log.txt
+gateway_report.txt
 *.o
 a.out
